@@ -1,6 +1,7 @@
 package com.example.excelimport.controller;
 import com.example.excelimport.dto.ImportResult;
 import com.example.excelimport.service.ImportService;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,21 +12,18 @@ import org.springframework.http.MediaType;
 @RequiredArgsConstructor
 public class ImportController {
     private  final ImportService ImportService;
-    @PostMapping(value = "/students", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ImportResult> importStudents(@RequestParam("file") MultipartFile file){
-        if(file.isEmpty()){
-            return ResponseEntity.badRequest().build();
+    @PostMapping(value = "/students/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ImportResult> importFile(@RequestParam("file") MultipartFile file){
+        if (file.isEmpty()){
+            return ResponseEntity.badRequest().body(ImportResult.builder().success(false).message("select a file to upload").build());
         }
-        String fileName= file.getOriginalFilename();
-        if(fileName==null || !fileName.endsWith(".xlsx")){
-            return ResponseEntity.badRequest().build();
+        String fileName=file.getOriginalFilename();
+        if (fileName==null|| (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls"))){
+            return ResponseEntity.badRequest().body(ImportResult.builder().success(false).message("upload .xlsx or .xls").build());
         }
-        try {
-            ImportResult result= ImportService.importStudents(file);
-            return ResponseEntity.ok(result);
-        }catch(Exception e){
-            e.printStackTrace();
-            return  ResponseEntity.internalServerError().build();
-        }
+        ImportResult result=ImportService.importExcelFile(file);
+        return result.getSuccess() ? ResponseEntity.ok(result) : ResponseEntity.badRequest().body(result);
     }
+
+
 }

@@ -1,18 +1,14 @@
 package com.example.excelimport.dto;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-
 public class ImportResult{
-    private int totalRows;
-    private int successfulCount;
-    private int errorCount;
+    private Boolean success;
     private String message;
+    private List<String> errors;
+
 
 }
